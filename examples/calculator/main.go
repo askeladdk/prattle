@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 	"unicode"
 
 	"github.com/askeladdk/prattle"
@@ -42,42 +43,37 @@ var rune2name = map[rune]prattle.Kind{
 	'√': squareRoot,
 }
 
-func scan(s *prattle.Scanner) prattle.ScanFunc {
-	s.Any(unicode.IsSpace)
+func scan(s *prattle.Scanner) prattle.Kind {
+	s.ExpectAny(unicode.IsSpace)
 	s.Skip()
 
 	r := s.Peek()
 	switch {
 	case s.Done():
-		return nil
-	case s.OneRune('a'):
-		if s.OneRune('n') {
-			if s.OneRune('s') {
-				s.Emit(answer)
-				return scan
+		return 0
+	case s.Expect('a'):
+		if s.Expect('n') {
+			if s.Expect('s') {
+				return answer
 			}
 		}
-	case s.One(unicode.IsDigit):
-		s.Any(unicode.IsDigit)
-		if s.OneRune('.') {
-			s.Any(unicode.IsDigit)
+	case s.ExpectOne(unicode.IsDigit):
+		s.ExpectAny(unicode.IsDigit)
+		if s.Expect('.') {
+			s.ExpectAny(unicode.IsDigit)
 		}
-		s.Emit(number)
-		return scan
-	case s.OneRune('.'):
-		if s.One(unicode.IsDigit) {
-			s.Any(unicode.IsDigit)
-			s.Emit(number)
-			return scan
+		return number
+	case s.Expect('.'):
+		if s.ExpectOne(unicode.IsDigit) {
+			s.ExpectAny(unicode.IsDigit)
+			return number
 		}
-	case s.One(prattle.OneOf("+-*/^ˆ%()π!√")):
-		s.Emit(rune2name[r])
-		return scan
+	case s.ExpectOne(prattle.OneOf("+-*/^ˆ%()π!√")):
+		return rune2name[r]
 	}
 
-	_ = s.Advance()
-	s.Emit(-1)
-	return nil
+	s.Advance()
+	return -1
 }
 
 type calculator struct {
@@ -275,8 +271,7 @@ func (c *calculator) ParseError(t prattle.Token) error {
 }
 
 func (c *calculator) calculate(expr string) (v float64, err error) {
-	s := prattle.NewScanner("<calc>", expr, scan)
-	defer s.Flush()
+	s := (&prattle.Scanner{Scan: scan}).Init(strings.NewReader(expr))
 	p := prattle.Parser{
 		Sequence: s,
 		Context:  c,
