@@ -27,10 +27,16 @@ type Scanner struct {
 	cursor  int
 	curline int
 	curcoln int
+	err     error
 }
 
 // Init initializes a Scanner with a new source input and returns it.
+// Panics if Scan is nil.
 func (s *Scanner) Init(source io.RuneReader) *Scanner {
+	if s.Scan == nil || source == nil {
+		panic("prattle.Scanner parameters cannot be nil")
+	}
+
 	if s.buffer == nil {
 		s.buffer = make([]rune, 0, 256)
 	} else {
@@ -46,9 +52,15 @@ func (s *Scanner) Init(source io.RuneReader) *Scanner {
 	s.cursor = 0
 	s.curline = 0
 	s.curcoln = 0
+	s.err = nil
 
 	s.Advance()
 	return s
+}
+
+// Err returns a non-nil value if the Scanner encountered an error.
+func (s *Scanner) Err() error {
+	return s.err
 }
 
 // Next returns the next token in the token stream.
@@ -80,6 +92,10 @@ func (s *Scanner) Done() bool {
 
 // Advance advances the cursor by one rune.
 func (s *Scanner) Advance() {
+	if s.err != nil {
+		return
+	}
+
 	if s.curline == 0 || s.peek == '\n' {
 		s.curline++
 		s.curcoln = 1
@@ -92,7 +108,7 @@ func (s *Scanner) Advance() {
 		s.cursor += s.peekw
 	}
 
-	s.peek, s.peekw, _ = s.source.ReadRune()
+	s.peek, s.peekw, s.err = s.source.ReadRune()
 }
 
 // Expect advances the cursor if the current rune matches.

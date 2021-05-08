@@ -1,8 +1,11 @@
 package prattle
 
 import (
+	"bufio"
+	"errors"
 	"strings"
 	"testing"
+	"testing/iotest"
 	"unicode"
 )
 
@@ -77,4 +80,26 @@ func TestScannerPrefixes(t *testing.T) {
 			t.Fatal(tok)
 		}
 	}
+}
+
+func TestScannerErr(t *testing.T) {
+	scan := func(s *Scanner) Kind {
+		return 1
+	}
+
+	r := iotest.ErrReader(errors.New("i/o error"))
+	s := (&Scanner{Scan: scan}).Init(bufio.NewReader(r))
+	k := s.Next()
+	if k.Kind != 1 || s.Err() == nil {
+		t.Fatal(k, s.Err())
+	}
+}
+
+func TestScannerPanic(t *testing.T) {
+	defer func() {
+		if s, _ := recover().(string); s == "" {
+			t.Fatal()
+		}
+	}()
+	(&Scanner{}).Init(nil)
 }

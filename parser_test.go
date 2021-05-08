@@ -164,3 +164,12 @@ func TestParse(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestParserPanic(t *testing.T) {
+	defer func() {
+		if s, _ := recover().(string); s == "" {
+			t.Fatal()
+		}
+	}()
+	(&Parser{}).Init(nil)
+}

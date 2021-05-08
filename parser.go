@@ -59,6 +59,10 @@ var ErrNonAssoc = errors.New("non-associative operator")
 
 // Init initializes the Parser with a Sequence and returns it.
 func (p *Parser) Init(sequence Sequence) *Parser {
+	if p.Context == nil || sequence == nil {
+		panic("prattle.Parser parameters cannot be nil")
+	}
+
 	p.sequence = sequence
 	p.Advance()
 	return p
