@@ -22,7 +22,7 @@ func Example_sentence() {
 		case s.ExpectOne(unicode.IsLetter): // Word
 			s.ExpectAny(unicode.IsLetter)
 			return 1
-		case s.Expect('!'): // Punctuation
+		case s.ExpectOne(unicode.IsPunct): // Punctuation
 			return 2
 		}
 
@@ -35,7 +35,7 @@ func Example_sentence() {
 
 	s := prattle.NewScanner(strings.NewReader(sentence), scan)
 
-	for tok := s.Next(); tok.Kind != 0; tok = s.Next() {
+	for tok := s.Next(); tok.Kind > 0; tok = s.Next() {
 		fmt.Printf("[%d] %s\n", tok.Kind, tok.Text)
 	}
 

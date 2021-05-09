@@ -140,9 +140,9 @@ func (s *Scanner) ExpectAny(accept AcceptFunc) {
 	}
 }
 
-// OneOf returns an AcceptFunc that accepts runes that appear in s.
-func OneOf(s string) AcceptFunc {
+// OneOf returns an AcceptFunc that reports whether a rune appears in chars.
+func OneOf(chars string) AcceptFunc {
 	return func(r rune) bool {
-		return strings.IndexRune(s, r) >= 0
+		return strings.IndexRune(chars, r) >= 0
 	}
 }

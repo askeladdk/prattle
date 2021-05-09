@@ -154,13 +154,18 @@ func Example_interpreter() {
 	s := prattle.NewScanner(strings.NewReader(source), testScan)
 	p := prattle.NewParser(s, &c)
 
-	// Parse one or more statements.
-	_ = p.ParseStatement()
-	_ = p.ParseStatements(func(k prattle.Kind) bool {
+	accept := func(k prattle.Kind) bool {
 		return k > 0
-	})
+	}
 
-	fmt.Printf("c = %d\n", c.idents["c"])
+	// Parse one or more statements.
+	if err := p.ParseStatement(); err != nil {
+		fmt.Println(err)
+	} else if err := p.ParseStatements(accept); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("c = %d\n", c.idents["c"])
+	}
 
 	// Output:
 	// c = 6
