@@ -3,6 +3,7 @@ package prattle
 import "fmt"
 
 // Kind identifies the type of token.
+// Zero is reserved to signal end-of-input.
 type Kind int
 
 // Position represents the position of a Token in the input string.

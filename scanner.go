@@ -5,14 +5,13 @@ import (
 	"strings"
 )
 
-// ScanFunc lexically analyses the Scanner input and emits tokens.
+// ScanFunc returns the Kind of the next token.
 type ScanFunc func(*Scanner) Kind
 
 // AcceptFunc accepts a rune.
 type AcceptFunc func(rune) bool
 
-// Scanner produces a sequence of tokens from an input string.
-// Scanner is UTF-8 aware and consumes a single codepoint at a time.
+// Scanner produces a sequence of tokens from an io.RuneReader.
 type Scanner struct {
 	// Position of the last read token.
 	Position
@@ -31,7 +30,7 @@ type Scanner struct {
 }
 
 // Init initializes a Scanner with a new source input and returns it.
-// Panics if Scan is nil.
+// Panics if Scan or source is nil.
 func (s *Scanner) Init(source io.RuneReader) *Scanner {
 	if s.Scan == nil || source == nil {
 		panic("prattle.Scanner parameters cannot be nil")
@@ -58,7 +57,7 @@ func (s *Scanner) Init(source io.RuneReader) *Scanner {
 	return s
 }
 
-// Err returns a non-nil value if the Scanner encountered an error.
+// Err returns a non-nil value if the source reader returned an error.
 func (s *Scanner) Err() error {
 	return s.err
 }

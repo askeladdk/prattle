@@ -4,37 +4,42 @@ import (
 	"errors"
 )
 
-// Sequence is the interface that wraps a sequence of tokens and is the input to Parser.
+// ErrNonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
+var ErrNonAssoc = errors.New("non-associative operator")
+
+// Sequence represents a sequence of tokens.
 type Sequence interface {
 	// Next returns the next token in the sequence.
 	// It must return the zero token when the sequence is depleted.
 	Next() Token
 }
 
-// ParseFunc parses an expression.
+// ParseFunc parses an expression or statement.
 type ParseFunc func(*Parser, Token) error
 
 // Precedence is the token precedence.
 // The higher the precedence, the tighter the token binds.
-// The lowest precedence is zero, which is reserved for the final token that signals end of input.
 type Precedence int
 
 // Context is passed to Parser and drives the parsing algorithm.
+// It is expected to hold the parse state and results, such as the syntax tree.
 type Context interface {
-	// Infix returns the ParseFunc associated with an infix operator.
+	// Infix associates an infix ParseFunc with a token.
+	// Returning nil is a parse error.
 	Infix(Kind) ParseFunc
 
-	// Infix returns the ParseFunc associated with a prefix operator.
+	// Prefix associates a prefix ParseFunc with a token.
+	// Returning nil is a parse error.
 	Prefix(Kind) ParseFunc
 
-	// Statement returns the ParseFunc associated with a statement.
+	// Statement associates a statement ParseFunc with a token.
+	// Returning nil is a parse error.
 	Statement(Kind) ParseFunc
 
-	// Precedence associates a token with an operator precedence.
-	// The lowest precedence is zero and is reserved for the EndOf token.
+	// Precedence associates an operator precedence with a token.
 	Precedence(Kind) Precedence
 
-	// ParseError is called by the Parser when it encounters a token it cannot parse.
+	// ParseError is called by the Parser when it encounters a token that it cannot parse.
 	ParseError(Token) error
 }
 
@@ -47,17 +52,15 @@ type Context interface {
 // Context drives the algorithm by providing the precedence values and parsing functions.
 // Sequence provides the token stream.
 type Parser struct {
-	// Context drives the Parser algorithm.
+	// Context drives the Parser.
 	Context
 
 	sequence Sequence
 	token    Token
 }
 
-// ErrNonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
-var ErrNonAssoc = errors.New("non-associative operator")
-
 // Init initializes the Parser with a Sequence and returns it.
+// Panics if Context or sequence is nil.
 func (p *Parser) Init(sequence Sequence) *Parser {
 	if p.Context == nil || sequence == nil {
 		panic("prattle.Parser parameters cannot be nil")
@@ -73,7 +76,7 @@ func (p *Parser) Peek() Token {
 	return p.token
 }
 
-// Advance reads the next token.
+// Advance reads the next token from the Sequence.
 func (p *Parser) Advance() {
 	p.token = p.sequence.Next()
 }
@@ -127,7 +130,8 @@ func (p *Parser) ParseStatement() error {
 	return stmt(p, t)
 }
 
-// ParseStatements parses zero or more statements.
+// ParseStatements parses zero or more statements while accept returns true.
+// Accept receives a statement's initial token kind.
 func (p *Parser) ParseStatements(accept func(Kind) bool) error {
 	for t := p.Peek(); accept(t.Kind); t = p.Peek() {
 		p.Advance()
