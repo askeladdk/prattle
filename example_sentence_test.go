@@ -33,8 +33,7 @@ func Example_sentence() {
 
 	sentence := "I love it when a plan comes together!"
 
-	s := prattle.Scanner{Scan: scan}
-	s.Init(strings.NewReader(sentence))
+	s := prattle.NewScanner(strings.NewReader(sentence), scan)
 
 	for tok := s.Next(); tok.Kind != 0; tok = s.Next() {
 		fmt.Printf("[%d] %s\n", tok.Kind, tok.Text)

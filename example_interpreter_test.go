@@ -151,8 +151,8 @@ func Example_interpreter() {
 
 	source := "a = 1;\nb = 2;\nc = a+b+b+a;\n"
 
-	s := (&prattle.Scanner{Scan: testScan}).Init(strings.NewReader(source))
-	p := (&prattle.Parser{Context: &c}).Init(s)
+	s := prattle.NewScanner(strings.NewReader(source), testScan)
+	p := prattle.NewParser(s, &c)
 
 	// Parse one or more statements.
 	_ = p.ParseStatement()

@@ -57,6 +57,11 @@ func (s *Scanner) Init(source io.RuneReader) *Scanner {
 	return s
 }
 
+// NewScanner creates a new Scanner.
+func NewScanner(source io.RuneReader, scan ScanFunc) *Scanner {
+	return (&Scanner{Scan: scan}).Init(source)
+}
+
 // Err returns a non-nil value if the source reader returned an error.
 func (s *Scanner) Err() error {
 	return s.err

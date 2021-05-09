@@ -71,6 +71,11 @@ func (p *Parser) Init(sequence Sequence) *Parser {
 	return p
 }
 
+// NewParser creates a new Parser.
+func NewParser(sequence Sequence, context Context) *Parser {
+	return (&Parser{Context: context}).Init(sequence)
+}
+
 // Peek returns the last read token.
 func (p *Parser) Peek() Token {
 	return p.token
