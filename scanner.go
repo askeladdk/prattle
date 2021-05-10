@@ -140,6 +140,26 @@ func (s *Scanner) ExpectAny(accept AcceptFunc) {
 	}
 }
 
+// MatchKeyword returns the index of the keyword that
+// matches the current token buffer or -1 if not found.
+// The keywords slice must be sorted.
+func (s *Scanner) MatchKeyword(keywords [][]rune) int {
+	test := s.buffer
+	j := 0
+outer:
+	for i, keyword := range keywords {
+		if len(test) == len(keyword) {
+			for ; j < len(test); j++ {
+				if test[j] != keyword[j] {
+					continue outer
+				}
+			}
+			return i
+		}
+	}
+	return -1
+}
+
 // OneOf returns an AcceptFunc that reports whether a rune appears in chars.
 func OneOf(chars string) AcceptFunc {
 	return func(r rune) bool {

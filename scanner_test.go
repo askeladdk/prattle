@@ -103,3 +103,42 @@ func TestScannerPanic(t *testing.T) {
 	}()
 	(&Scanner{}).Init(nil)
 }
+
+func Test_matchKeyword(t *testing.T) {
+	keywords := [][]rune{
+		[]rune("a"),
+		[]rune("i"),
+		[]rune("if"),
+		[]rune("ifelsd"),
+		[]rune("ifelse"),
+		[]rune("var"),
+	}
+
+	scan := func(s *Scanner) Kind {
+		s.ExpectAny(unicode.IsSpace)
+		s.Skip()
+		switch {
+		case s.Done():
+			return 0
+		case s.ExpectOne(unicode.IsLetter):
+			s.ExpectAny(unicode.IsLetter)
+			if i := Kind(s.MatchKeyword(keywords)); i >= 0 {
+				return 1 + i
+			}
+			return -1
+		}
+		s.Advance()
+		return -1
+	}
+
+	expected := []Kind{3, 5, -1, 6, -1}
+	source := "if ifelse ifels var varr"
+
+	s := NewScanner(strings.NewReader(source), scan)
+	for _, x := range expected {
+		tok := s.Next()
+		if tok.Kind != x {
+			t.Fatal(tok)
+		}
+	}
+}
