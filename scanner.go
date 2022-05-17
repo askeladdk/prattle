@@ -68,12 +68,13 @@ func (s *Scanner) Err() error {
 }
 
 // Next returns the next token in the token stream.
-func (s *Scanner) Next() (tok Token) {
+func (s *Scanner) Next() Token {
+	var tok Token
 	tok.Kind = s.Scan(s)
 	tok.Text = string(s.buffer)
 	tok.Position = s.Position
 	s.Skip()
-	return
+	return tok
 }
 
 // Skip swallows the next token.
