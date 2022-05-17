@@ -164,6 +164,6 @@ outer:
 // OneOf returns an AcceptFunc that reports whether a rune appears in chars.
 func OneOf(chars string) AcceptFunc {
 	return func(r rune) bool {
-		return strings.IndexRune(chars, r) >= 0
+		return strings.ContainsRune(chars, r)
 	}
 }
