@@ -6,7 +6,6 @@ import (
 	"math"
 	"os"
 	"strconv"
-	"strings"
 	"unicode"
 
 	"github.com/askeladdk/prattle"
@@ -271,7 +270,7 @@ func (c *calculator) ParseError(t prattle.Token) error {
 }
 
 func (c *calculator) calculate(expr string) (v float64, err error) {
-	s := prattle.NewScanner(strings.NewReader(expr), scan)
+	s := prattle.NewScanner(expr, scan)
 	p := prattle.NewParser(s, c)
 	err = p.ParseExpression(0)
 	if err == nil && p.Peek().Kind != 0 {

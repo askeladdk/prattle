@@ -1,8 +1,8 @@
 package prattle
 
 import (
-	"io"
 	"strings"
+	"unicode/utf8"
 )
 
 // ScanFunc returns the Kind of the next token.
@@ -19,8 +19,7 @@ type Scanner struct {
 	// Scan scans tokens.
 	Scan ScanFunc
 
-	source  io.RuneReader
-	buffer  []rune
+	source  string
 	peek    rune
 	peekw   int
 	cursor  int
@@ -30,16 +29,10 @@ type Scanner struct {
 }
 
 // Init initializes a Scanner with a new source input and returns it.
-// Panics if Scan or source is nil.
-func (s *Scanner) Init(source io.RuneReader) *Scanner {
-	if s.Scan == nil || source == nil {
-		panic("prattle.Scanner parameters cannot be nil")
-	}
-
-	if s.buffer == nil {
-		s.buffer = make([]rune, 0, 256)
-	} else {
-		s.buffer = s.buffer[:0]
+// Panics if Scan is nil.
+func (s *Scanner) Init(source string) *Scanner {
+	if s.Scan == nil {
+		panic("scan field cannot be nil")
 	}
 
 	s.Offset = 0
@@ -58,8 +51,12 @@ func (s *Scanner) Init(source io.RuneReader) *Scanner {
 }
 
 // NewScanner creates a new Scanner.
-func NewScanner(source io.RuneReader, scan ScanFunc) *Scanner {
+func NewScanner(source string, scan ScanFunc) *Scanner {
 	return (&Scanner{Scan: scan}).Init(source)
+}
+
+func (s *Scanner) curtext() string {
+	return s.source[s.Offset:s.cursor]
 }
 
 // Err returns a non-nil value if the source reader returned an error.
@@ -71,7 +68,7 @@ func (s *Scanner) Err() error {
 func (s *Scanner) Next() Token {
 	var tok Token
 	tok.Kind = s.Scan(s)
-	tok.Text = string(s.buffer)
+	tok.Text = s.curtext()
 	tok.Position = s.Position
 	s.Skip()
 	return tok
@@ -82,7 +79,6 @@ func (s *Scanner) Skip() {
 	s.Offset = s.cursor
 	s.Line = s.curline
 	s.Column = s.curcoln
-	s.buffer = s.buffer[:0]
 }
 
 // Peek returns the current rune.
@@ -108,12 +104,8 @@ func (s *Scanner) Advance() {
 		s.curcoln++
 	}
 
-	if s.peekw > 0 {
-		s.buffer = append(s.buffer, s.peek)
-		s.cursor += s.peekw
-	}
-
-	s.peek, s.peekw, s.err = s.source.ReadRune()
+	s.cursor += s.peekw
+	s.peek, s.peekw = utf8.DecodeRuneInString(s.source[s.cursor:])
 }
 
 // Expect advances the cursor if the current rune matches.
@@ -144,8 +136,8 @@ func (s *Scanner) ExpectAny(accept AcceptFunc) {
 // MatchKeyword returns the index of the keyword that
 // matches the current token buffer or -1 if not found.
 // The keywords slice must be sorted.
-func (s *Scanner) MatchKeyword(keywords [][]rune) int {
-	test := s.buffer
+func (s *Scanner) MatchKeyword(keywords []string) int {
+	test := s.curtext()
 	j := 0
 outer:
 	for i, keyword := range keywords {

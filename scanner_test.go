@@ -1,11 +1,7 @@
 package prattle
 
 import (
-	"bufio"
-	"errors"
-	"strings"
 	"testing"
-	"testing/iotest"
 	"unicode"
 )
 
@@ -42,7 +38,7 @@ func TestScanner(t *testing.T) {
 	}
 
 	source := "result =\n€1337 + BlAbLa"
-	s := (&Scanner{Scan: scan}).Init(strings.NewReader(source))
+	s := (&Scanner{Scan: scan}).Init(source)
 
 	for _, x := range expected {
 		tok := s.Next()
@@ -72,7 +68,7 @@ func TestScannerPrefixes(t *testing.T) {
 	expected := []Kind{1, 2, 2, 1, 2, 2, 0}
 
 	source := "+ ++ +++ ++++"
-	s := (&Scanner{Scan: scan}).Init(strings.NewReader(source))
+	s := (&Scanner{Scan: scan}).Init(source)
 
 	for _, x := range expected {
 		tok := s.Next()
@@ -82,36 +78,23 @@ func TestScannerPrefixes(t *testing.T) {
 	}
 }
 
-func TestScannerErr(t *testing.T) {
-	scan := func(s *Scanner) Kind {
-		return 1
-	}
-
-	r := iotest.ErrReader(errors.New("i/o error"))
-	s := (&Scanner{Scan: scan}).Init(bufio.NewReader(r))
-	k := s.Next()
-	if k.Kind != 1 || s.Err() == nil {
-		t.Fatal(k, s.Err())
-	}
-}
-
 func TestScannerPanic(t *testing.T) {
 	defer func() {
-		if s, _ := recover().(string); s == "" {
+		if s, _ := recover().(string); s != "scan field cannot be nil" {
 			t.Fatal()
 		}
 	}()
-	(&Scanner{}).Init(nil)
+	(&Scanner{}).Init("")
 }
 
 func Test_matchKeyword(t *testing.T) {
-	keywords := [][]rune{
-		[]rune("a"),
-		[]rune("i"),
-		[]rune("if"),
-		[]rune("ifelsd"),
-		[]rune("ifelse"),
-		[]rune("var"),
+	keywords := []string{
+		"a",
+		"i",
+		"if",
+		"ifelsd",
+		"ifelse",
+		"var",
 	}
 
 	scan := func(s *Scanner) Kind {
@@ -134,7 +117,7 @@ func Test_matchKeyword(t *testing.T) {
 	expected := []Kind{3, 5, -1, 6, -1}
 	source := "if ifelse ifels var varr"
 
-	s := NewScanner(strings.NewReader(source), scan)
+	s := NewScanner(source, scan)
 	for _, x := range expected {
 		tok := s.Next()
 		if tok.Kind != x {

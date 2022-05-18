@@ -3,7 +3,6 @@ package prattle_test
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"unicode"
 
 	"github.com/askeladdk/prattle"
@@ -151,7 +150,7 @@ func Example_interpreter() {
 
 	source := "a = 1;\nb = 2;\nc = a+b+b+a;\n"
 
-	s := prattle.NewScanner(strings.NewReader(source), testScan)
+	s := prattle.NewScanner(source, testScan)
 	p := prattle.NewParser(s, &c)
 
 	accept := func(k prattle.Kind) bool {
