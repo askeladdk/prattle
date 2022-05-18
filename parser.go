@@ -21,9 +21,9 @@ type ParseFunc func(*Parser, Token) error
 // The higher the precedence, the tighter the token binds.
 type Precedence int
 
-// Context is passed to Parser and drives the parsing algorithm.
+// Driver drives the parsing algorithm by associating tokens to parser functions.
 // It is expected to hold the parse state and results, such as the syntax tree.
-type Context interface {
+type Driver interface {
 	// Infix associates an infix ParseFunc with a token.
 	// Returning nil is a parse error.
 	Infix(Kind) ParseFunc
@@ -48,21 +48,20 @@ type Context interface {
 // This a recursive descent algorithm that is able to handle operator precedence
 // in a simple and flexible manner.
 //
-// Parser operates on a Context and a Sequence.
-// Context drives the algorithm by providing the precedence values and parsing functions.
-// Sequence provides the token stream.
+// Parser consumes tokens from a Sequence and uses a Driver
+// to determine precedence and executing parsing functions.
 type Parser struct {
-	// Context drives the Parser.
-	Context
+	// Driver drives the Parser.
+	Driver
 
 	sequence Sequence
 	token    Token
 }
 
 // Init initializes the Parser with a Sequence and returns it.
-// Panics if Context or sequence is nil.
+// Panics if Driver or sequence is nil.
 func (p *Parser) Init(sequence Sequence) *Parser {
-	if p.Context == nil || sequence == nil {
+	if p.Driver == nil || sequence == nil {
 		panic("prattle.Parser parameters cannot be nil")
 	}
 
@@ -72,8 +71,8 @@ func (p *Parser) Init(sequence Sequence) *Parser {
 }
 
 // NewParser creates a new Parser.
-func NewParser(sequence Sequence, context Context) *Parser {
-	return (&Parser{Context: context}).Init(sequence)
+func NewParser(sequence Sequence, driver Driver) *Parser {
+	return (&Parser{Driver: driver}).Init(sequence)
 }
 
 // Peek returns the last read token.

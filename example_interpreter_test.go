@@ -41,23 +41,23 @@ func testScan(s *prattle.Scanner) prattle.Kind {
 	return -1
 }
 
-type testContext struct {
+type testDriver struct {
 	stack  []int
 	idents map[string]int
 }
 
-func (c *testContext) pop() (v int) {
-	if n := len(c.stack); n > 0 {
-		v, c.stack = c.stack[n-1], c.stack[:n-1]
+func (d *testDriver) pop() (v int) {
+	if n := len(d.stack); n > 0 {
+		v, d.stack = d.stack[n-1], d.stack[:n-1]
 	}
 	return v
 }
 
-func (c *testContext) push(v int) {
-	c.stack = append(c.stack, v)
+func (d *testDriver) push(v int) {
+	d.stack = append(d.stack, v)
 }
 
-func (c *testContext) Precedence(kind prattle.Kind) prattle.Precedence {
+func (d *testDriver) Precedence(kind prattle.Kind) prattle.Precedence {
 	switch kind {
 	default:
 		return 0
@@ -70,82 +70,82 @@ func (c *testContext) Precedence(kind prattle.Kind) prattle.Precedence {
 	}
 }
 
-func (c *testContext) ident(p *prattle.Parser, t prattle.Token) error {
-	v := c.idents[t.Text]
-	c.push(v)
+func (d *testDriver) ident(p *prattle.Parser, t prattle.Token) error {
+	v := d.idents[t.Text]
+	d.push(v)
 	return nil
 }
 
-func (c *testContext) number(p *prattle.Parser, t prattle.Token) error {
+func (d *testDriver) number(p *prattle.Parser, t prattle.Token) error {
 	v, _ := strconv.Atoi(t.Text)
-	c.push(v)
+	d.push(v)
 	return nil
 }
 
-func (c *testContext) plus(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(c.Precedence(t.Kind)); err != nil {
+func (d *testDriver) plus(p *prattle.Parser, t prattle.Token) error {
+	if err := p.ParseExpression(d.Precedence(t.Kind)); err != nil {
 		return err
 	}
-	right := c.pop()
-	left := c.pop()
-	c.push(right + left)
+	right := d.pop()
+	left := d.pop()
+	d.push(right + left)
 	return nil
 }
 
-func (c *testContext) assign(p *prattle.Parser, t prattle.Token) error {
+func (d *testDriver) assign(p *prattle.Parser, t prattle.Token) error {
 	if !p.Expect(kassign) {
-		return c.ParseError(p.Peek())
+		return d.ParseError(p.Peek())
 	}
 
-	if err := p.ParseExpression(c.Precedence(kassign)); err != nil {
+	if err := p.ParseExpression(d.Precedence(kassign)); err != nil {
 		return err
 	}
 
-	c.idents[t.Text] = c.pop()
+	d.idents[t.Text] = d.pop()
 
 	if !p.Expect(ksemicolon) {
-		return c.ParseError(p.Peek())
+		return d.ParseError(p.Peek())
 	}
 
 	return nil
 }
 
-func (c *testContext) Prefix(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Prefix(kind prattle.Kind) prattle.ParseFunc {
 	switch kind {
 	default:
 		return nil
 	case kident:
-		return c.ident
+		return d.ident
 	case knumber:
-		return c.number
+		return d.number
 	}
 }
 
-func (c *testContext) Infix(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Infix(kind prattle.Kind) prattle.ParseFunc {
 	switch kind {
 	default:
 		return nil
 	case kplus:
-		return c.plus
+		return d.plus
 	}
 }
 
-func (c *testContext) Statement(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Statement(kind prattle.Kind) prattle.ParseFunc {
 	switch kind {
 	case kident:
-		return c.assign
+		return d.assign
 	default:
 		return nil
 	}
 }
 
-func (c *testContext) ParseError(t prattle.Token) error {
+func (d *testDriver) ParseError(t prattle.Token) error {
 	return fmt.Errorf("%s: unexpected '%s'", t.Position, t.Text)
 }
 
 // This example interprets a simple programming language that only has assignment statements and addition.
 func Example_interpreter() {
-	var c testContext
+	var c testDriver
 	c.idents = map[string]int{}
 
 	source := "a = 1;\nb = 2;\nc = a+b+b+a;\n"
