@@ -25,7 +25,6 @@ type Scanner struct {
 	cursor  int
 	curline int
 	curcoln int
-	err     error
 }
 
 // Init initializes a Scanner with a new source input and returns it.
@@ -39,7 +38,6 @@ func (s *Scanner) Init(source string) *Scanner {
 	s.cursor = 0
 	s.curline = 0
 	s.curcoln = 0
-	s.err = nil
 
 	s.Advance()
 	return s
@@ -48,11 +46,6 @@ func (s *Scanner) Init(source string) *Scanner {
 // Text returns the string matched so far.
 func (s *Scanner) Text() string {
 	return s.source[s.Offset:s.cursor]
-}
-
-// Err returns a non-nil value if the source reader returned an error.
-func (s *Scanner) Err() error {
-	return s.err
 }
 
 // Next returns the next token in the token stream.
@@ -84,10 +77,6 @@ func (s *Scanner) Done() bool {
 
 // Advance advances the cursor by one rune.
 func (s *Scanner) Advance() {
-	if s.err != nil {
-		return
-	}
-
 	if s.curline == 0 || s.peek == '\n' {
 		s.curline++
 		s.curcoln = 1
