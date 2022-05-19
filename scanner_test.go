@@ -81,13 +81,13 @@ func TestScannerPrefixes(t *testing.T) {
 }
 
 func Test_matchKeyword(t *testing.T) {
-	keywords := []string{
-		"a",
-		"i",
-		"if",
-		"ifelsd",
-		"ifelse",
-		"var",
+	keywords := map[string]Kind{
+		"a":      1,
+		"i":      2,
+		"if":     3,
+		"ifelsd": 4,
+		"ifelse": 5,
+		"var":    6,
 	}
 
 	scan := func(s *Scanner) Kind {
@@ -98,8 +98,8 @@ func Test_matchKeyword(t *testing.T) {
 			return 0
 		case s.ExpectOne(unicode.IsLetter):
 			s.ExpectAny(unicode.IsLetter)
-			if i := Kind(s.MatchKeyword(keywords)); i >= 0 {
-				return 1 + i
+			if i, ok := keywords[s.Text()]; ok {
+				return i
 			}
 			return -1
 		}

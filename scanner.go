@@ -45,7 +45,8 @@ func (s *Scanner) Init(source string) *Scanner {
 	return s
 }
 
-func (s *Scanner) curtext() string {
+// Text returns the string matched so far.
+func (s *Scanner) Text() string {
 	return s.source[s.Offset:s.cursor]
 }
 
@@ -58,7 +59,7 @@ func (s *Scanner) Err() error {
 func (s *Scanner) Next() Token {
 	var tok Token
 	tok.Kind = s.Scan(s)
-	tok.Text = s.curtext()
+	tok.Text = s.Text()
 	tok.Position = s.Position
 	s.Skip()
 	return tok
@@ -121,26 +122,6 @@ func (s *Scanner) ExpectAny(accept AcceptFunc) {
 	for accept(s.Peek()) {
 		s.Advance()
 	}
-}
-
-// MatchKeyword returns the index of the keyword that
-// matches the current token buffer or -1 if not found.
-// The keywords slice must be sorted.
-func (s *Scanner) MatchKeyword(keywords []string) int {
-	test := s.curtext()
-	j := 0
-outer:
-	for i, keyword := range keywords {
-		if len(test) == len(keyword) {
-			for ; j < len(test); j++ {
-				if test[j] != keyword[j] {
-					continue outer
-				}
-			}
-			return i
-		}
-	}
-	return -1
 }
 
 // OneOf returns an AcceptFunc that reports whether a rune appears in chars.
