@@ -150,8 +150,9 @@ func Example_interpreter() {
 
 	source := "a = 1;\nb = 2;\nc = a+b+b+a;\n"
 
-	s := prattle.NewScanner(source, testScan)
-	p := prattle.NewParser(s, &c)
+	s := prattle.Scanner{Scan: testScan}
+	p := prattle.Parser{Driver: &c}
+	p.Init(s.Init(source))
 
 	accept := func(k prattle.Kind) bool {
 		return k > 0

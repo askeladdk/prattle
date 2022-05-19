@@ -59,20 +59,10 @@ type Parser struct {
 }
 
 // Init initializes the Parser with a Sequence and returns it.
-// Panics if Driver or sequence is nil.
 func (p *Parser) Init(sequence Sequence) *Parser {
-	if p.Driver == nil || sequence == nil {
-		panic("prattle.Parser parameters cannot be nil")
-	}
-
 	p.sequence = sequence
 	p.Advance()
 	return p
-}
-
-// NewParser creates a new Parser.
-func NewParser(sequence Sequence, driver Driver) *Parser {
-	return (&Parser{Driver: driver}).Init(sequence)
 }
 
 // Peek returns the last read token.

@@ -29,12 +29,7 @@ type Scanner struct {
 }
 
 // Init initializes a Scanner with a new source input and returns it.
-// Panics if Scan is nil.
 func (s *Scanner) Init(source string) *Scanner {
-	if s.Scan == nil {
-		panic("scan field cannot be nil")
-	}
-
 	s.Offset = 0
 	s.Column = 0
 	s.Line = 0
@@ -48,11 +43,6 @@ func (s *Scanner) Init(source string) *Scanner {
 
 	s.Advance()
 	return s
-}
-
-// NewScanner creates a new Scanner.
-func NewScanner(source string, scan ScanFunc) *Scanner {
-	return (&Scanner{Scan: scan}).Init(source)
 }
 
 func (s *Scanner) curtext() string {

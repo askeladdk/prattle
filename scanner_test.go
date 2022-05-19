@@ -1,6 +1,8 @@
 package prattle
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 	"unicode"
 )
@@ -78,15 +80,6 @@ func TestScannerPrefixes(t *testing.T) {
 	}
 }
 
-func TestScannerPanic(t *testing.T) {
-	defer func() {
-		if s, _ := recover().(string); s != "scan field cannot be nil" {
-			t.Fatal()
-		}
-	}()
-	(&Scanner{}).Init("")
-}
-
 func Test_matchKeyword(t *testing.T) {
 	keywords := []string{
 		"a",
@@ -117,11 +110,49 @@ func Test_matchKeyword(t *testing.T) {
 	expected := []Kind{3, 5, -1, 6, -1}
 	source := "if ifelse ifels var varr"
 
-	s := NewScanner(source, scan)
+	s := Scanner{Scan: scan}
+	s.Init(source)
+
 	for _, x := range expected {
 		tok := s.Next()
 		if tok.Kind != x {
 			t.Fatal(tok)
+		}
+	}
+}
+
+func BenchmarkScanner(b *testing.B) {
+	b.ReportAllocs()
+
+	scan := func(s *Scanner) Kind {
+		s.ExpectAny(unicode.IsSpace)
+		s.Skip()
+
+		switch {
+		case s.Done():
+			return 0
+		case s.ExpectOne(unicode.IsDigit):
+			s.ExpectAny(unicode.IsDigit)
+			return 1
+		default:
+			s.Advance()
+			return -1
+		}
+	}
+
+	var sb strings.Builder
+	for i := 0; i < 1000; i++ {
+		fmt.Fprintf(&sb, "%d ", i)
+	}
+
+	source := sb.String()
+
+	s := Scanner{Scan: scan}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		s.Init(source)
+		for t := s.Next(); t.Kind != 0; t = s.Next() {
 		}
 	}
 }
