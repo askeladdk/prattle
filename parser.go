@@ -9,35 +9,30 @@ var ErrNonAssoc = errors.New("non-associative operator")
 
 // Sequence represents a sequence of tokens.
 type Sequence interface {
-	// Next returns the next token in the sequence.
-	// It must return the zero token when the sequence is depleted.
 	Next() Token
 }
 
 // ParseFunc parses an expression or statement.
 type ParseFunc func(*Parser, Token) error
 
-// Precedence is the token precedence.
-// The higher the precedence, the tighter the token binds.
-type Precedence int
-
 // Driver drives the parsing algorithm by associating tokens to parser functions.
 // It is expected to hold the parse state and results, such as the syntax tree.
 type Driver interface {
 	// Infix associates an infix ParseFunc with a token.
 	// Returning nil is a parse error.
-	Infix(Kind) ParseFunc
+	Infix(kind int) ParseFunc
 
 	// Prefix associates a prefix ParseFunc with a token.
 	// Returning nil is a parse error.
-	Prefix(Kind) ParseFunc
+	Prefix(kind int) ParseFunc
 
 	// Statement associates a statement ParseFunc with a token.
 	// Returning nil is a parse error.
-	Statement(Kind) ParseFunc
+	Statement(kind int) ParseFunc
 
 	// Precedence associates an operator precedence with a token.
-	Precedence(Kind) Precedence
+	// The higher the precedence, the tighter the token binds.
+	Precedence(kind int) (precedence int)
 
 	// ParseError is called by the Parser when it encounters a token that it cannot parse.
 	ParseError(Token) error
@@ -76,7 +71,7 @@ func (p *Parser) Advance() {
 }
 
 // Expect advances to the next token if the current token kind matches.
-func (p *Parser) Expect(kind Kind) bool {
+func (p *Parser) Expect(kind int) bool {
 	if p.token.Kind != kind {
 		return false
 	}
@@ -86,7 +81,7 @@ func (p *Parser) Expect(kind Kind) bool {
 
 // ParseExpression parses until a token with an equal or lower precedence is encountered.
 // It is called in a mutual recursive manner by the parsing functions provided by Context.
-func (p *Parser) ParseExpression(least Precedence) error {
+func (p *Parser) ParseExpression(least int) error {
 	t := p.Peek()
 	p.Advance()
 
@@ -126,7 +121,7 @@ func (p *Parser) ParseStatement() error {
 
 // ParseStatements parses zero or more statements while accept returns true.
 // Accept receives a statement's initial token kind.
-func (p *Parser) ParseStatements(accept func(Kind) bool) error {
+func (p *Parser) ParseStatements(accept func(int) bool) error {
 	for t := p.Peek(); accept(t.Kind); t = p.Peek() {
 		p.Advance()
 

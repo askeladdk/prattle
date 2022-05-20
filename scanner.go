@@ -5,8 +5,10 @@ import (
 	"unicode/utf8"
 )
 
-// ScanFunc returns the Kind of the next token.
-type ScanFunc func(*Scanner) Kind
+// ScanFunc scans the next token and returns its kind.
+// By convention, zero is reserved to signal end-of-input
+// and negative values signal an invalid token.
+type ScanFunc func(*Scanner) (kind int)
 
 // AcceptFunc accepts a rune.
 type AcceptFunc func(rune) bool
@@ -14,6 +16,7 @@ type AcceptFunc func(rune) bool
 // Scanner produces a sequence of tokens from an io.RuneReader.
 type Scanner struct {
 	// Position of the last read token.
+	// The Filename field will never be modified by Scanner.
 	Position
 
 	// Scan scans tokens.
@@ -43,7 +46,7 @@ func (s *Scanner) Init(source string) *Scanner {
 	return s
 }
 
-// Text returns the string matched so far.
+// Text returns the string that has been scanned so far.
 func (s *Scanner) Text() string {
 	return s.source[s.Offset:s.cursor]
 }

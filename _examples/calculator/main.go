@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	number prattle.Kind = 1 + iota
+	number int = 1 + iota
 	plus
 	minus
 	star
@@ -27,7 +27,7 @@ const (
 	answer
 )
 
-var rune2name = map[rune]prattle.Kind{
+var rune2name = map[rune]int{
 	'+': plus,
 	'-': minus,
 	'*': star,
@@ -42,7 +42,7 @@ var rune2name = map[rune]prattle.Kind{
 	'√': squareRoot,
 }
 
-func scan(s *prattle.Scanner) prattle.Kind {
+func scan(s *prattle.Scanner) int {
 	s.ExpectAny(unicode.IsSpace)
 	s.Skip()
 
@@ -112,7 +112,7 @@ func (c *calculator) ans(p *prattle.Parser, t prattle.Token) error {
 	return nil
 }
 
-func (c *calculator) binop(kind prattle.Kind) {
+func (c *calculator) binop(kind int) {
 	right := c.pop()
 	left := c.pop()
 
@@ -205,7 +205,7 @@ func (c *calculator) paren(p *prattle.Parser, t prattle.Token) error {
 	return nil
 }
 
-func (c *calculator) Prefix(kind prattle.Kind) prattle.ParseFunc {
+func (c *calculator) Prefix(kind int) prattle.ParseFunc {
 	switch kind {
 	case number:
 		return c.number
@@ -222,7 +222,7 @@ func (c *calculator) Prefix(kind prattle.Kind) prattle.ParseFunc {
 	}
 }
 
-func (c *calculator) Infix(kind prattle.Kind) prattle.ParseFunc {
+func (c *calculator) Infix(kind int) prattle.ParseFunc {
 	switch kind {
 	case plus, minus, star, slash, modulo:
 		return c.binopLeftAssoc
@@ -237,11 +237,11 @@ func (c *calculator) Infix(kind prattle.Kind) prattle.ParseFunc {
 	}
 }
 
-func (c *calculator) Statement(kind prattle.Kind) prattle.ParseFunc {
+func (c *calculator) Statement(kind int) prattle.ParseFunc {
 	return nil
 }
 
-func (c *calculator) Precedence(kind prattle.Kind) prattle.Precedence {
+func (c *calculator) Precedence(kind int) int {
 	switch kind {
 	default:
 		return 0

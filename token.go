@@ -2,10 +2,6 @@ package prattle
 
 import "fmt"
 
-// Kind identifies the type of token.
-// Zero is reserved to signal end-of-input.
-type Kind int
-
 // Position represents the position of a Token in the input string.
 type Position struct {
 	// Filename is the filename of the input.
@@ -42,7 +38,7 @@ type Token struct {
 	Position
 
 	// Kind identifies the kind of token.
-	Kind Kind
+	Kind int
 
 	// Text is the token value.
 	Text string

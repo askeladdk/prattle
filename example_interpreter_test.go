@@ -9,14 +9,14 @@ import (
 )
 
 const (
-	kident prattle.Kind = 1 + iota
+	kident = 1 + iota
 	knumber
 	kassign
 	kplus
 	ksemicolon
 )
 
-func testScan(s *prattle.Scanner) prattle.Kind {
+func testScan(s *prattle.Scanner) int {
 	s.ExpectAny(unicode.IsSpace)
 	s.Skip()
 
@@ -57,7 +57,7 @@ func (d *testDriver) push(v int) {
 	d.stack = append(d.stack, v)
 }
 
-func (d *testDriver) Precedence(kind prattle.Kind) prattle.Precedence {
+func (d *testDriver) Precedence(kind int) int {
 	switch kind {
 	default:
 		return 0
@@ -110,7 +110,7 @@ func (d *testDriver) assign(p *prattle.Parser, t prattle.Token) error {
 	return nil
 }
 
-func (d *testDriver) Prefix(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Prefix(kind int) prattle.ParseFunc {
 	switch kind {
 	default:
 		return nil
@@ -121,7 +121,7 @@ func (d *testDriver) Prefix(kind prattle.Kind) prattle.ParseFunc {
 	}
 }
 
-func (d *testDriver) Infix(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Infix(kind int) prattle.ParseFunc {
 	switch kind {
 	default:
 		return nil
@@ -130,7 +130,7 @@ func (d *testDriver) Infix(kind prattle.Kind) prattle.ParseFunc {
 	}
 }
 
-func (d *testDriver) Statement(kind prattle.Kind) prattle.ParseFunc {
+func (d *testDriver) Statement(kind int) prattle.ParseFunc {
 	switch kind {
 	case kident:
 		return d.assign
@@ -154,7 +154,7 @@ func Example_interpreter() {
 	p := prattle.Parser{Driver: &c}
 	p.Init(s.Init(source))
 
-	accept := func(k prattle.Kind) bool {
+	accept := func(k int) bool {
 		return k > 0
 	}
 

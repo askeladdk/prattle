@@ -8,7 +8,7 @@ import (
 )
 
 func TestScanner(t *testing.T) {
-	scan := func(s *Scanner) Kind {
+	scan := func(s *Scanner) int {
 		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
 		switch {
@@ -51,7 +51,7 @@ func TestScanner(t *testing.T) {
 }
 
 func TestScannerPrefixes(t *testing.T) {
-	scan := func(s *Scanner) Kind {
+	scan := func(s *Scanner) int {
 		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
 		switch {
@@ -67,7 +67,7 @@ func TestScannerPrefixes(t *testing.T) {
 		return -1
 	}
 
-	expected := []Kind{1, 2, 2, 1, 2, 2, 0}
+	expected := []int{1, 2, 2, 1, 2, 2, 0}
 
 	source := "+ ++ +++ ++++"
 	s := (&Scanner{Scan: scan}).Init(source)
@@ -81,7 +81,7 @@ func TestScannerPrefixes(t *testing.T) {
 }
 
 func Test_matchKeyword(t *testing.T) {
-	keywords := map[string]Kind{
+	keywords := map[string]int{
 		"a":      1,
 		"i":      2,
 		"if":     3,
@@ -90,7 +90,7 @@ func Test_matchKeyword(t *testing.T) {
 		"var":    6,
 	}
 
-	scan := func(s *Scanner) Kind {
+	scan := func(s *Scanner) int {
 		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
 		switch {
@@ -107,7 +107,7 @@ func Test_matchKeyword(t *testing.T) {
 		return -1
 	}
 
-	expected := []Kind{3, 5, -1, 6, -1}
+	expected := []int{3, 5, -1, 6, -1}
 	source := "if ifelse ifels var varr"
 
 	s := Scanner{Scan: scan}
@@ -124,7 +124,7 @@ func Test_matchKeyword(t *testing.T) {
 func BenchmarkScanner(b *testing.B) {
 	b.ReportAllocs()
 
-	scan := func(s *Scanner) Kind {
+	scan := func(s *Scanner) int {
 		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
 

@@ -9,7 +9,7 @@ import (
 
 // This example tokenizes a sentence into words and punctuation.
 func Example_sentence() {
-	scan := func(s *prattle.Scanner) prattle.Kind {
+	scan := func(s *prattle.Scanner) int {
 		// Skip any whitespace.
 		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
