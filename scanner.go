@@ -39,9 +39,8 @@ func (s *Scanner) Init(source string) *Scanner {
 	s.peek = 0
 	s.peekw = 0
 	s.cursor = 0
-	s.curline = 0
-	s.curcoln = 0
-
+	s.curline = 1
+	s.curcoln = 1
 	s.Advance()
 	return s
 }
@@ -80,7 +79,7 @@ func (s *Scanner) Done() bool {
 
 // Advance advances the cursor by one rune.
 func (s *Scanner) Advance() {
-	if s.curline == 0 || s.peek == '\n' {
+	if s.peek == '\n' {
 		s.curline++
 		s.curcoln = 1
 	} else if s.peekw > 0 {
