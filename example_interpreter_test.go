@@ -154,14 +154,10 @@ func Example_interpreter() {
 	p := prattle.Parser{Driver: &c}
 	p.Init(s.Init(source))
 
-	accept := func(k int) bool {
-		return k > 0
-	}
-
 	// Parse one or more statements.
 	if err := p.ParseStatement(); err != nil {
 		fmt.Println(err)
-	} else if err := p.ParseStatements(accept); err != nil {
+	} else if err := p.ParseStatements(0); err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Printf("c = %d\n", c.idents["c"])

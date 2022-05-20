@@ -79,8 +79,8 @@ func (p *Parser) Expect(kind int) bool {
 	return true
 }
 
-// ParseExpression parses until a token with an equal or lower precedence is encountered.
-// It is called in a mutual recursive manner by the parsing functions provided by Context.
+// ParseExpression parses until a token with an equal or lower precedence than least is encountered.
+// It is called in a mutual recursive manner by the parsing functions provided by the Driver.
 func (p *Parser) ParseExpression(least int) error {
 	t := p.Peek()
 	p.Advance()
@@ -119,10 +119,10 @@ func (p *Parser) ParseStatement() error {
 	return stmt(p, t)
 }
 
-// ParseStatements parses zero or more statements while accept returns true.
-// Accept receives a statement's initial token kind.
-func (p *Parser) ParseStatements(accept func(int) bool) error {
-	for t := p.Peek(); accept(t.Kind); t = p.Peek() {
+// ParseStatements parses zero or more statements until a token
+// with an equal or lower precedence than least is encountered.
+func (p *Parser) ParseStatements(least int) error {
+	for t := p.Peek(); least < p.Precedence(t.Kind); t = p.Peek() {
 		p.Advance()
 
 		if stmt := p.Statement(t.Kind); stmt == nil {
