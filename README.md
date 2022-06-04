@@ -21,26 +21,26 @@ Use `Scanner` to produce a sequence of `Token`s by scanning a source text using 
 // Prepare the scanner.
 scanner := prattle.Scanner{
 	// Scan scans the next token and returns its kind.
-    Scan: func(s *prattle.Scanner) (kind int) {
-        // Skip any whitespace.
-        s.ExpectAny(unicode.IsSpace)
+	Scan: func(s *prattle.Scanner) (kind int) {
+		// Skip any whitespace.
+		s.ExpectAny(unicode.IsSpace)
 		s.Skip()
 
 		// Scan the next token.
 		switch {
-        case s.Done(): // Stop when the entire input has been consumed.
-            return 0
-        case s.Expect('+'): // Scan the addition operator.
-            return 1
-        case s.ExpectOne(unicode.IsDigit): // Scan a number consisting of one or more digits.
-            s.ExpectAny(unicode.IsDigit)
-            return 2
-        }
+		case s.Done(): // Stop when the entire input has been consumed.
+			return 0
+		case s.Expect('+'): // Scan the addition operator.
+			return 1
+		case s.ExpectOne(unicode.IsDigit): // Scan a number consisting of one or more digits.
+			s.ExpectAny(unicode.IsDigit)
+			return 2
+		}
 
 		// Invalid token.
 		s.Advance()
 		return -1
-    },
+	},
 }
 ```
 
@@ -102,7 +102,7 @@ func (d *driver) ParseError(t prattle.Token) error {
 
 // Prepare the parser.
 parser := prattle.Parser{
-    Driver: &driver{},
+	Driver: &driver{},
 }
 ```
 
