@@ -110,7 +110,7 @@ Finally, `Init` the scanner and parser, and parse an expression.
 
 ```go
 source := "1 + 23 + 456 + 7890"
-scanner.Init(source)
+scanner.InitWithString(source)
 parser.Init(&scanner)
 _ = parser.ParseExpression(0)
 

@@ -272,7 +272,7 @@ func (c *calculator) ParseError(t prattle.Token) error {
 func (c *calculator) calculate(expr string) (v float64, err error) {
 	s := prattle.Scanner{Scan: scan}
 	p := prattle.Parser{Driver: c}
-	err = p.Init(s.Init(expr)).ParseExpression(0)
+	err = p.Init(s.InitWithString(expr)).ParseExpression(0)
 	if err == nil && p.Peek().Kind != 0 {
 		err = p.ParseError(p.Peek())
 	}

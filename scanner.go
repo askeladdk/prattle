@@ -1,8 +1,8 @@
 package prattle
 
 import (
+	"io"
 	"strings"
-	"unicode/utf8"
 )
 
 // ScanFunc scans the next token and returns its kind.
@@ -22,7 +22,7 @@ type Scanner struct {
 	// Scan scans tokens.
 	Scan ScanFunc
 
-	source  string
+	reader  spanReader
 	peek    rune
 	peekw   int
 	cursor  int
@@ -30,12 +30,11 @@ type Scanner struct {
 	curcoln int
 }
 
-// Init initializes a Scanner with a new source input and returns it.
-func (s *Scanner) Init(source string) *Scanner {
+func (s *Scanner) init(r spanReader) *Scanner {
 	s.Offset = 0
 	s.Column = 0
 	s.Line = 0
-	s.source = source
+	s.reader = r
 	s.peek = 0
 	s.peekw = 0
 	s.cursor = 0
@@ -45,9 +44,37 @@ func (s *Scanner) Init(source string) *Scanner {
 	return s
 }
 
+// Init initializes a Scanner with an input string and returns it.
+// When initialized this way, the Scanner tokenizes without allocations.
+func (s *Scanner) InitWithString(source string) *Scanner {
+	// reuse existing stringSpanner if possible
+	if ss, ok := s.reader.(*stringSpanner); ok {
+		ss.source = source
+		ss.cursor = 0
+		ss.size = 0
+		return s.init(ss)
+	}
+
+	return s.init(&stringSpanner{source: source})
+}
+
+// Init initializes a Scanner with an input reader and returns it.
+// When initialized this way, the Scanner tokenizes unbounded streams but must allocate.
+func (s *Scanner) InitWithReader(r io.RuneReader) *Scanner {
+	// reuse existing runeReaderSpanner if possible
+	if rrs, ok := s.reader.(*runeReaderSpanner); ok {
+		rrs.rr = r
+		rrs.buf = rrs.buf[:0]
+		rrs.r = 0
+		return s.init(rrs)
+	}
+
+	return s.init(&runeReaderSpanner{rr: r})
+}
+
 // Text returns the string that has been scanned so far.
 func (s *Scanner) Text() string {
-	return s.source[s.Offset:s.cursor]
+	return s.reader.Span()
 }
 
 // Next returns the next token in the token stream.
@@ -65,6 +92,7 @@ func (s *Scanner) Skip() {
 	s.Offset = s.cursor
 	s.Line = s.curline
 	s.Column = s.curcoln
+	s.reader.NextSpan()
 }
 
 // Peek returns the current rune.
@@ -87,7 +115,7 @@ func (s *Scanner) Advance() {
 	}
 
 	s.cursor += s.peekw
-	s.peek, s.peekw = utf8.DecodeRuneInString(s.source[s.cursor:])
+	s.peek, s.peekw, _ = s.reader.ReadRune()
 }
 
 // Expect advances the cursor if the current rune matches.

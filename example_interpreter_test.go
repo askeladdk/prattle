@@ -152,7 +152,7 @@ func Example_interpreter() {
 
 	s := prattle.Scanner{Scan: testScan}
 	p := prattle.Parser{Driver: &c}
-	p.Init(s.Init(source))
+	p.Init(s.InitWithString(source))
 
 	// Parse one or more statements.
 	if err := p.ParseStatement(); err != nil {

@@ -1,7 +1,6 @@
 package prattle
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"unicode"
@@ -40,7 +39,9 @@ func TestScanner(t *testing.T) {
 	}
 
 	source := "result =\n€1337 + BlAbLa"
-	s := (&Scanner{Scan: scan}).Init(source)
+	s := (&Scanner{Scan: scan})
+	s.InitWithString(source)
+	s.InitWithString(source)
 
 	for _, x := range expected {
 		tok := s.Next()
@@ -70,7 +71,9 @@ func TestScannerPrefixes(t *testing.T) {
 	expected := []int{1, 2, 2, 1, 2, 2, 0}
 
 	source := "+ ++ +++ ++++"
-	s := (&Scanner{Scan: scan}).Init(source)
+	s := (&Scanner{Scan: scan})
+	s.InitWithReader(strings.NewReader(source))
+	s.InitWithReader(strings.NewReader(source))
 
 	for _, x := range expected {
 		tok := s.Next()
@@ -111,48 +114,12 @@ func Test_matchKeyword(t *testing.T) {
 	source := "if ifelse ifels var varr"
 
 	s := Scanner{Scan: scan}
-	s.Init(source)
+	s.InitWithString(source)
 
 	for _, x := range expected {
 		tok := s.Next()
 		if tok.Kind != x {
 			t.Fatal(tok)
-		}
-	}
-}
-
-func BenchmarkScanner(b *testing.B) {
-	b.ReportAllocs()
-
-	scan := func(s *Scanner) int {
-		s.ExpectAny(unicode.IsSpace)
-		s.Skip()
-
-		switch {
-		case s.Done():
-			return 0
-		case s.ExpectOne(unicode.IsDigit):
-			s.ExpectAny(unicode.IsDigit)
-			return 1
-		default:
-			s.Advance()
-			return -1
-		}
-	}
-
-	var sb strings.Builder
-	for i := 0; i < 1000; i++ {
-		fmt.Fprintf(&sb, "%d ", i)
-	}
-
-	source := sb.String()
-
-	s := Scanner{Scan: scan}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		s.Init(source)
-		for t := s.Next(); t.Kind != 0; t = s.Next() {
 		}
 	}
 }

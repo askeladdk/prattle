@@ -34,7 +34,7 @@ func Example_sentence() {
 
 	s := (&prattle.Scanner{
 		Scan: scan,
-	}).Init(sentence)
+	}).InitWithString(sentence)
 
 	for tok := s.Next(); tok.Kind > 0; tok = s.Next() {
 		fmt.Printf("[%d] %s\n", tok.Kind, tok.Text)
