@@ -7,9 +7,10 @@ import (
 // ErrNonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
 var ErrNonAssoc = errors.New("non-associative operator")
 
-// Sequence represents a sequence of tokens.
+// Sequence represents a stream of tokens.
 type Sequence interface {
-	Next() Token
+	// NextToken returns the next token in the stream.
+	NextToken() Token
 }
 
 // ParseFunc parses an expression or statement.
@@ -67,7 +68,7 @@ func (p *Parser) Peek() Token {
 
 // Advance reads the next token from the Sequence.
 func (p *Parser) Advance() {
-	p.token = p.sequence.Next()
+	p.token = p.sequence.NextToken()
 }
 
 // Expect advances to the next token if the current token kind matches.

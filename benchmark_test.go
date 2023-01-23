@@ -70,7 +70,7 @@ func BenchmarkScannerWithString(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.InitWithString(words)
-		for t := s.Next(); t.Kind > 0; t = s.Next() {
+		for t := s.NextToken(); t.Kind > 0; t = s.NextToken() {
 		}
 	}
 }
@@ -83,7 +83,7 @@ func BenchmarkScannerWithReader(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		s.InitWithReader(strings.NewReader(words))
-		for t := s.Next(); t.Kind > 0; t = s.Next() {
+		for t := s.NextToken(); t.Kind > 0; t = s.NextToken() {
 		}
 	}
 }

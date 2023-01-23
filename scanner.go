@@ -77,8 +77,8 @@ func (s *Scanner) Text() string {
 	return s.reader.Span()
 }
 
-// Next returns the next token in the token stream.
-func (s *Scanner) Next() Token {
+// NextToken implements Sequence.
+func (s *Scanner) NextToken() Token {
 	var tok Token
 	tok.Kind = s.Scan(s)
 	tok.Text = s.Text()

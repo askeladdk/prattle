@@ -44,7 +44,7 @@ func TestScanner(t *testing.T) {
 	s.InitWithString(source)
 
 	for _, x := range expected {
-		tok := s.Next()
+		tok := s.NextToken()
 		if tok != x {
 			t.Fatal(tok)
 		}
@@ -76,7 +76,7 @@ func TestScannerPrefixes(t *testing.T) {
 	s.InitWithReader(strings.NewReader(source))
 
 	for _, x := range expected {
-		tok := s.Next()
+		tok := s.NextToken()
 		if tok.Kind != x {
 			t.Fatal(tok)
 		}
@@ -117,7 +117,7 @@ func Test_matchKeyword(t *testing.T) {
 	s.InitWithString(source)
 
 	for _, x := range expected {
-		tok := s.Next()
+		tok := s.NextToken()
 		if tok.Kind != x {
 			t.Fatal(tok)
 		}
