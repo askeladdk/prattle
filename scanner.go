@@ -13,7 +13,7 @@ type ScanFunc func(*Scanner) (kind int)
 // AcceptFunc accepts a rune.
 type AcceptFunc func(rune) bool
 
-// Scanner produces a sequence of tokens from an io.RuneReader.
+// Scanner produces a stream of tokens from a string or an io.RuneReader.
 type Scanner struct {
 	// Position of the last read token.
 	// The Filename field will never be modified by Scanner.
@@ -72,7 +72,7 @@ func (s *Scanner) InitWithReader(r io.RuneReader) *Scanner {
 	return s.init(&runeReaderSpanner{rr: r})
 }
 
-// Text returns the string that has been scanned so far.
+// Text returns the token string that has been scanned so far.
 func (s *Scanner) Text() string {
 	return s.reader.Span()
 }

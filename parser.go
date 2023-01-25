@@ -17,7 +17,7 @@ type Sequence interface {
 type ParseFunc func(*Parser, Token) error
 
 // Driver drives the parsing algorithm by associating tokens to parser functions.
-// It is expected to hold the parse state and results, such as the syntax tree.
+// It is expected to hold the parse state and results like the syntax tree.
 type Driver interface {
 	// Infix associates an infix ParseFunc with a token.
 	// Returning nil is a parse error.
@@ -41,7 +41,7 @@ type Driver interface {
 
 // Parser implements the Pratt parsing algorithm,
 // also known as the top down operator precedence (TDOP) algorithm.
-// This a recursive descent algorithm that is able to handle operator precedence
+// This is a recursive descent algorithm that handles operator precedence
 // in a simple and flexible manner.
 //
 // Parser consumes tokens from a Sequence and uses a Driver
@@ -80,8 +80,10 @@ func (p *Parser) Expect(kind int) bool {
 	return true
 }
 
-// ParseExpression parses until a token with an equal or lower precedence than least is encountered.
-// It is called in a mutual recursive manner by the parsing functions provided by the Driver.
+// ParseExpression parses using the TDOP algorithm until it encounters a token
+// with an equal or lower precedence than least.
+// It may be called in a mutual recursive manner by the parsing functions
+// provided by the Driver.
 func (p *Parser) ParseExpression(least int) error {
 	t := p.Peek()
 	p.Advance()
