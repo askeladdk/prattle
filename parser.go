@@ -7,10 +7,11 @@ import (
 // ErrNonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
 var ErrNonAssoc = errors.New("non-associative operator")
 
-// TokenStream represents a stream of tokens.
-type TokenStream interface {
-	// NextToken returns the next token in the stream.
-	NextToken() Token
+// Iterator represents a stream of tokens.
+type Iterator interface {
+	// Next returns the next token in the stream
+	// and yields true until the stream ends.
+	Next() (token Token, ok bool)
 }
 
 // ParseFunc parses an expression or statement.
@@ -50,13 +51,13 @@ type Parser struct {
 	// Driver drives the Parser.
 	Driver
 
-	stream TokenStream
-	token  Token
+	iter  Iterator
+	token Token
 }
 
 // Init initializes the Parser with a Sequence and returns it.
-func (p *Parser) Init(sequence TokenStream) *Parser {
-	p.stream = sequence
+func (p *Parser) Init(iter Iterator) *Parser {
+	p.iter = iter
 	p.Advance()
 	return p
 }
@@ -68,7 +69,7 @@ func (p *Parser) Peek() Token {
 
 // Advance reads the next token from the Sequence.
 func (p *Parser) Advance() {
-	p.token = p.stream.NextToken()
+	p.token, _ = p.iter.Next()
 }
 
 // Expect advances to the next token if the current token kind matches.

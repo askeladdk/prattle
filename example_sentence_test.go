@@ -36,7 +36,7 @@ func Example_sentence() {
 		Scan: scan,
 	}).InitWithString(sentence)
 
-	for tok := s.NextToken(); tok.Kind > 0; tok = s.NextToken() {
+	for tok, ok := s.Next(); ok; tok, ok = s.Next() {
 		fmt.Printf("[%d] %s\n", tok.Kind, tok.Text)
 	}
 

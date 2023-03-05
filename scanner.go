@@ -77,14 +77,14 @@ func (s *Scanner) Text() string {
 	return s.reader.Span()
 }
 
-// NextToken implements Sequence.
-func (s *Scanner) NextToken() Token {
+// Next implements Iterator.
+func (s *Scanner) Next() (Token, bool) {
 	var tok Token
 	tok.Kind = s.Scan(s)
 	tok.Text = s.Text()
 	tok.Position = s.Position
 	s.Skip()
-	return tok
+	return tok, tok.Kind != 0
 }
 
 // Skip swallows the next token.
