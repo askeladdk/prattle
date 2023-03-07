@@ -80,9 +80,11 @@ func BenchmarkScannerWithReader(b *testing.B) {
 	rng := rand.New(rand.NewSource(0))
 	words := genWords(2048, rng)
 	s := Scanner{Scan: scanWords}
+	r := strings.NewReader(words)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		s.InitWithReader(strings.NewReader(words))
+		r.Reset(words)
+		s.InitWithReader(r)
 		for _, ok := s.Next(); ok; _, ok = s.Next() {
 		}
 	}
