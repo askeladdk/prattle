@@ -7,7 +7,7 @@ import (
 	"github.com/askeladdk/prattle"
 )
 
-// This example tokenizes a sentence into words and punctuation.
+// This example demonstrates tokenising a sentence into words and punctuation.
 func Example_sentence() {
 	scan := func(s *prattle.Scanner) int {
 		// Skip any whitespace.

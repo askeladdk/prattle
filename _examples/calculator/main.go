@@ -141,7 +141,7 @@ func (c *calculator) binop(kind int) {
 }
 
 func (c *calculator) binopLeftAssoc(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(c.Precedence(t.Kind)); err != nil {
+	if err := p.Parse(c.Precedence(t.Kind)); err != nil {
 		return err
 	}
 	c.binop(t.Kind)
@@ -149,7 +149,7 @@ func (c *calculator) binopLeftAssoc(p *prattle.Parser, t prattle.Token) error {
 }
 
 func (c *calculator) binopRightAssoc(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(c.Precedence(t.Kind) - 1); err != nil {
+	if err := p.Parse(c.Precedence(t.Kind) - 1); err != nil {
 		return err
 	}
 	c.binop(t.Kind)
@@ -157,7 +157,7 @@ func (c *calculator) binopRightAssoc(p *prattle.Parser, t prattle.Token) error {
 }
 
 func (c *calculator) binopNonAssoc(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(c.Precedence(t.Kind)); err != nil {
+	if err := p.Parse(c.Precedence(t.Kind)); err != nil {
 		return err
 	}
 	c.binop(t.Kind)
@@ -165,7 +165,7 @@ func (c *calculator) binopNonAssoc(p *prattle.Parser, t prattle.Token) error {
 }
 
 func (c *calculator) unary(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(c.Precedence(t.Kind)); err != nil {
+	if err := p.Parse(c.Precedence(t.Kind)); err != nil {
 		return err
 	}
 
@@ -197,7 +197,7 @@ func (c *calculator) factorial(p *prattle.Parser, t prattle.Token) error {
 }
 
 func (c *calculator) paren(p *prattle.Parser, t prattle.Token) error {
-	if err := p.ParseExpression(1); err != nil {
+	if err := p.Parse(1); err != nil {
 		return err
 	} else if !p.Expect(rightPar) {
 		return c.ParseError(t)
@@ -237,10 +237,6 @@ func (c *calculator) Infix(kind int) prattle.ParseFunc {
 	}
 }
 
-func (c *calculator) Statement(kind int) prattle.ParseFunc {
-	return nil
-}
-
 func (c *calculator) Precedence(kind int) int {
 	switch kind {
 	default:
@@ -272,7 +268,7 @@ func (c *calculator) ParseError(t prattle.Token) error {
 func (c *calculator) calculate(expr string) (v float64, err error) {
 	s := prattle.Scanner{Scan: scan}
 	p := prattle.Parser{Driver: c}
-	err = p.Init(s.InitWithString(expr)).ParseExpression(0)
+	err = p.Init(s.InitWithString(expr)).Parse(0)
 	if err == nil && p.Peek().Kind != 0 {
 		err = p.ParseError(p.Peek())
 	}

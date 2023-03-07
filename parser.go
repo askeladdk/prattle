@@ -14,7 +14,7 @@ type Iterator interface {
 	Next() (token Token, ok bool)
 }
 
-// ParseFunc parses an expression or statement.
+// ParseFunc parses an expression.
 type ParseFunc func(*Parser, Token) error
 
 // Driver drives the parsing algorithm by associating tokens to parser functions.
@@ -27,10 +27,6 @@ type Driver interface {
 	// Prefix associates a prefix ParseFunc with a token.
 	// Returning nil is a parse error.
 	Prefix(kind int) ParseFunc
-
-	// Statement associates a statement ParseFunc with a token.
-	// Returning nil is a parse error.
-	Statement(kind int) ParseFunc
 
 	// Precedence associates an operator precedence with a token.
 	// The higher the precedence, the tighter the token binds.
@@ -81,11 +77,11 @@ func (p *Parser) Expect(kind int) bool {
 	return true
 }
 
-// ParseExpression parses using the TDOP algorithm until it encounters a token
+// Parse parses using the TDOP algorithm until it encounters a token
 // with an equal or lower precedence than least.
 // It may be called in a mutual recursive manner by the parsing functions
 // provided by the Driver.
-func (p *Parser) ParseExpression(least int) error {
+func (p *Parser) Parse(least int) error {
 	t := p.Peek()
 	p.Advance()
 
@@ -103,35 +99,6 @@ func (p *Parser) ParseExpression(least int) error {
 		} else if err := infix(p, t); err == NonAssoc {
 			least = p.Precedence(t.Kind) + 1
 		} else if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ParseStatement parses one statement.
-func (p *Parser) ParseStatement() error {
-	t := p.Peek()
-	p.Advance()
-
-	stmt := p.Statement(t.Kind)
-	if stmt == nil {
-		return p.ParseError(t)
-	}
-
-	return stmt(p, t)
-}
-
-// ParseStatements parses zero or more statements until a token
-// with an equal or lower precedence than least is encountered.
-func (p *Parser) ParseStatements(least int) error {
-	for t := p.Peek(); least < p.Precedence(t.Kind); t = p.Peek() {
-		p.Advance()
-
-		if stmt := p.Statement(t.Kind); stmt == nil {
-			return p.ParseError(t)
-		} else if err := stmt(p, t); err != nil {
 			return err
 		}
 	}

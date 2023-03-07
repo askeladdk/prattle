@@ -70,7 +70,7 @@ func (d *driver) number(p *prattle.Parser, t prattle.Token) error {
 
 func (d *driver) add(p *prattle.Parser, t prattle.Token) error {
 	// Parse the right hand operator.
-	_ = p.ParseExpression(d.Precedence(t.Kind))
+	_ = p.Parse(d.Precedence(t.Kind))
 
 	right := d.pop()
 	left := d.pop()
@@ -86,10 +86,6 @@ func (d *driver) Prefix(kind int) prattle.ParseFunc {
 
 func (d *driver) Infix(kind int) prattle.ParseFunc {
 	return d.add
-}
-
-func (d *driver) Statement(kind int) prattle.ParseFunc {
-	return nil
 }
 
 func (d *driver) Precedence(kind int) int {
@@ -111,8 +107,7 @@ Finally, `Init` the scanner and parser, and parse an expression.
 ```go
 source := "1 + 23 + 456 + 7890"
 scanner.InitWithString(source)
-parser.Init(&scanner)
-_ = parser.ParseExpression(0)
+parser.Init(&scanner).Parse(0)
 
 // Output:
 // 1 + 23 = 24

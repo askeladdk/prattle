@@ -7,14 +7,12 @@ import (
 )
 
 type testDriver struct {
-	infix     func(*Parser, Token) error
-	prefix    func(*Parser, Token) error
-	statement func(*Parser, Token) error
+	infix  func(*Parser, Token) error
+	prefix func(*Parser, Token) error
 }
 
 func (d testDriver) Infix(int) ParseFunc      { return d.infix }
 func (d testDriver) Prefix(int) ParseFunc     { return d.prefix }
-func (d testDriver) Statement(int) ParseFunc  { return d.statement }
 func (testDriver) Precedence(int) int         { return 1 }
 func (d testDriver) ParseError(t Token) error { return fmt.Errorf("kind: %d", t.Kind) }
 
@@ -49,7 +47,7 @@ func TestPrefixErrors(t *testing.T) {
 		p := Parser{Driver: &testDriver{}}
 		it := tokeniter(tokens)
 		p.Init(&it)
-		requireError(t, p.ParseExpression(0))
+		requireError(t, p.Parse(0))
 	})
 
 	t.Run("two", func(t *testing.T) {
@@ -60,7 +58,7 @@ func TestPrefixErrors(t *testing.T) {
 		}
 		it := tokeniter(tokens)
 		p.Init(&it)
-		requireError(t, p.ParseExpression(0))
+		requireError(t, p.Parse(0))
 	})
 }
 
@@ -73,7 +71,7 @@ func TestInfixErrors(t *testing.T) {
 		}}
 		it := tokeniter(tokens)
 		p.Init(&it)
-		requireError(t, p.ParseExpression(0))
+		requireError(t, p.Parse(0))
 	})
 
 	t.Run("two", func(t *testing.T) {
@@ -85,7 +83,7 @@ func TestInfixErrors(t *testing.T) {
 		}
 		it := tokeniter(tokens)
 		p.Init(&it)
-		requireError(t, p.ParseExpression(0))
+		requireError(t, p.Parse(0))
 	})
 
 	t.Run("nonassoc", func(t *testing.T) {
@@ -97,38 +95,7 @@ func TestInfixErrors(t *testing.T) {
 		}
 		it := tokeniter(tokens)
 		p.Init(&it)
-		requireNoError(t, p.ParseExpression(0))
-	})
-}
-
-func TestStatementErrors(t *testing.T) {
-	tokens := []Token{{Kind: 1}}
-
-	t.Run("statement", func(t *testing.T) {
-		p := Parser{Driver: &testDriver{}}
-		it := tokeniter(tokens)
-		p.Init(&it)
-		requireError(t, p.ParseStatement())
-	})
-
-	t.Run("statements1", func(t *testing.T) {
-		p := Parser{
-			Driver: &testDriver{},
-		}
-		it := tokeniter(tokens)
-		p.Init(&it)
-		requireError(t, p.ParseStatements(0))
-	})
-
-	t.Run("statements2", func(t *testing.T) {
-		p := Parser{
-			Driver: &testDriver{
-				statement: func(p *Parser, t Token) error { return errors.New("") },
-			},
-		}
-		it := tokeniter(tokens)
-		p.Init(&it)
-		requireError(t, p.ParseStatements(0))
+		requireNoError(t, p.Parse(0))
 	})
 }
 

@@ -30,7 +30,7 @@ func (d *driver) number(p *prattle.Parser, t prattle.Token) error {
 
 func (d *driver) add(p *prattle.Parser, t prattle.Token) error {
 	// First parse the right hand operator.
-	if err := p.ParseExpression(d.Precedence(t.Kind)); err != nil {
+	if err := p.Parse(d.Precedence(t.Kind)); err != nil {
 		return err
 	}
 
@@ -53,10 +53,6 @@ func (d *driver) Infix(k int) prattle.ParseFunc {
 	if k == 1 {
 		return d.add
 	}
-	return nil
-}
-
-func (d *driver) Statement(k int) prattle.ParseFunc {
 	return nil
 }
 
@@ -96,8 +92,7 @@ func Example_readme() {
 
 	source := "1 + 23 + 456 + 7890"
 	scanner.InitWithString(source)
-	parser.Init(&scanner)
-	if err := parser.ParseExpression(0); err != nil {
+	if err := parser.Init(&scanner).Parse(0); err != nil {
 		fmt.Println(err)
 	}
 
