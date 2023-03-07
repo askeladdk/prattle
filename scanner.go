@@ -6,7 +6,7 @@ import (
 )
 
 // ScanFunc scans the next token and returns its kind.
-// By convention, zero is reserved to signal end-of-input
+// Zero is reserved to signal end-of-input
 // and negative values signal an invalid token.
 type ScanFunc func(*Scanner) (kind int)
 

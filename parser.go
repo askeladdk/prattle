@@ -45,7 +45,7 @@ type Driver interface {
 // This is a recursive descent algorithm that handles operator precedence
 // in a simple and flexible manner.
 //
-// Parser consumes tokens from a Sequence and uses a Driver
+// Parser consumes tokens from an Iterator and uses a Driver
 // to determine precedence and executing parsing functions.
 type Parser struct {
 	// Driver drives the Parser.
@@ -55,7 +55,7 @@ type Parser struct {
 	token Token
 }
 
-// Init initializes the Parser with a Sequence and returns it.
+// Init initializes the Parser with an Iterator and returns it.
 func (p *Parser) Init(iter Iterator) *Parser {
 	p.iter = iter
 	p.Advance()
@@ -67,7 +67,7 @@ func (p *Parser) Peek() Token {
 	return p.token
 }
 
-// Advance reads the next token from the Sequence.
+// Advance reads the next token from the Iterator.
 func (p *Parser) Advance() {
 	p.token, _ = p.iter.Next()
 }
