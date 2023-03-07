@@ -92,7 +92,7 @@ func TestInfixErrors(t *testing.T) {
 		p := Parser{
 			Driver: &testDriver{
 				prefix: func(p *Parser, t Token) error { return nil },
-				infix:  func(p *Parser, t Token) error { return ErrNonAssoc },
+				infix:  func(p *Parser, t Token) error { return NonAssoc },
 			},
 		}
 		it := tokeniter(tokens)
@@ -139,5 +139,11 @@ func TestParserExpect(t *testing.T) {
 	p.Init(&it)
 	if p.Expect(3) {
 		t.Error("expected false")
+	}
+}
+
+func TestErrorString(t *testing.T) {
+	if NonAssoc.Error() == "" {
+		t.Fatal()
 	}
 }

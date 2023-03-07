@@ -161,7 +161,7 @@ func (c *calculator) binopNonAssoc(p *prattle.Parser, t prattle.Token) error {
 		return err
 	}
 	c.binop(t.Kind)
-	return prattle.ErrNonAssoc
+	return prattle.NonAssoc
 }
 
 func (c *calculator) unary(p *prattle.Parser, t prattle.Token) error {

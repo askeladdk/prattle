@@ -1,11 +1,11 @@
 package prattle
 
-import (
-	"errors"
-)
+type errorString string
 
-// ErrNonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
-var ErrNonAssoc = errors.New("non-associative operator")
+func (err errorString) Error() string { return string(err) }
+
+// NonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
+const NonAssoc errorString = "non-associative operator"
 
 // Iterator represents a stream of tokens.
 type Iterator interface {
@@ -100,7 +100,7 @@ func (p *Parser) ParseExpression(least int) error {
 
 		if infix := p.Infix(t.Kind); infix == nil {
 			return p.ParseError(t)
-		} else if err := infix(p, t); err == ErrNonAssoc {
+		} else if err := infix(p, t); err == NonAssoc {
 			least = p.Precedence(t.Kind) + 1
 		} else if err != nil {
 			return err
