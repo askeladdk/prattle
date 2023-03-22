@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/askeladdk/prattle?status.png)](https://godoc.org/github.com/askeladdk/prattle)
 [![Go Report Card](https://goreportcard.com/badge/github.com/askeladdk/prattle)](https://goreportcard.com/report/github.com/askeladdk/prattle)
+[![Coverage Status](https://coveralls.io/repos/github/askeladdk/prattle/badge.svg)](https://coveralls.io/github/askeladdk/prattle)
 
 ## Overview
 
