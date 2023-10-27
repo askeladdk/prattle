@@ -1,11 +1,9 @@
 package prattle
 
-type errorString string
-
-func (err errorString) Error() string { return string(err) }
+import "errors"
 
 // NonAssoc is returned by infix ParseFuncs to indicate that an operator is non-associative.
-const NonAssoc errorString = "non-associative operator"
+var NonAssoc error = errors.New("non-associative operator")
 
 // Iterator represents a stream of tokens.
 type Iterator interface {
