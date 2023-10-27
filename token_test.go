@@ -47,9 +47,10 @@ func TestTokenString(t *testing.T) {
 			Column:   37,
 		},
 		Text: "123",
+		Kind: 1,
 	}
 
-	if tok.String() != "hello.txt:13,37: '123'" {
+	if tok.String() != "hello.txt:13,37: '123'(1)" {
 		t.Error()
 	}
 }

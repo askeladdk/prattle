@@ -51,5 +51,5 @@ type Token struct {
 
 // String implements fmt.Stringer.
 func (t Token) String() string {
-	return fmt.Sprintf("%s: '%s'", t.Position, t.Text)
+	return fmt.Sprintf("%s: '%s'(%d)", t.Position, t.Text, t.Kind)
 }
