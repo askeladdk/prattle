@@ -6,8 +6,7 @@ import (
 )
 
 // ScanFunc scans the next token and returns its kind.
-// Zero is reserved to signal end-of-input
-// and negative values signal an invalid token.
+// Zero is reserved to signal end-of-input.
 type ScanFunc func(*Scanner) (kind int)
 
 // AcceptFunc accepts a rune.
