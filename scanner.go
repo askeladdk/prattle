@@ -78,15 +78,12 @@ func (s *Scanner) Text() string {
 
 // Next implements Iterator.
 func (s *Scanner) Next() (Token, bool) {
-	if s.Done() {
-		return Token{Position: s.Position}, false
-	}
 	var tok Token
 	tok.Kind = s.Scan(s)
 	tok.Text = s.Text()
 	tok.Position = s.Position
 	s.Skip()
-	return tok, true
+	return tok, tok.Kind > 0
 }
 
 // Skip swallows the next token.
