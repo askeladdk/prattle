@@ -115,6 +115,9 @@ func (s *Scanner) Advance() {
 
 	s.cursor += s.peekw
 	s.peek, s.peekw, _ = s.reader.ReadRune()
+	if s.peekw == 0 {
+		s.peek = 0
+	}
 }
 
 // Expect advances the cursor if the current rune matches.
